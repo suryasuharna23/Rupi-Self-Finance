@@ -1,0 +1,20 @@
+{"text":"beli bakso 15rb","kind":"transactions","transactions":[{"type":"EXPENSE","amount":15000,"category":"Makanan & Minuman"}]}
+{"text":"bakso 15rb sama es teh goceng","kind":"transactions","transactions":[{"type":"EXPENSE","amount":15000,"category":"Makanan & Minuman"},{"type":"EXPENSE","amount":5000,"category":"Makanan & Minuman"}]}
+{"text":"kemarin isi bensin 30rb","kind":"transactions","transactions":[{"type":"EXPENSE","amount":30000,"category":"Transportasi"}]}
+{"text":"dapet transferan ortu 1,5jt","kind":"transactions","transactions":[{"type":"INCOME","amount":1500000,"category":"Uang Saku"}]}
+{"text":"print tugas 3500","kind":"transactions","transactions":[{"type":"EXPENSE","amount":3500,"category":"Kuliah"}]}
+{"text":"makan siang","kind":"clarification"}
+{"text":"bulan ini habis berapa buat makan?","kind":"query"}
+{"text":"halo rupi","kind":"small_talk"}
+{"text":"bayar kos 750.000","kind":"transactions","transactions":[{"type":"EXPENSE","amount":750000,"category":"Kos & Utilitas"}]}
+{"text":"beli pulsa 25k","kind":"transactions","transactions":[{"type":"EXPENSE","amount":25000,"category":"Pulsa & Internet"}]}
+{"text":"gajian freelance 2jt","kind":"transactions","transactions":[{"type":"INCOME","amount":2000000,"category":"Gaji/Freelance"}]}
+{"text":"beasiswa cair 3,5jt","kind":"transactions","transactions":[{"type":"INCOME","amount":3500000,"category":"Beasiswa"}]}
+{"text":"ojol ke kampus 12rb","kind":"transactions","transactions":[{"type":"EXPENSE","amount":12000,"category":"Transportasi"}]}
+{"text":"kopi ceban","kind":"transactions","transactions":[{"type":"EXPENSE","amount":10000,"category":"Makanan & Minuman"}]}
+{"text":"nonton bioskop 50rb","kind":"transactions","transactions":[{"type":"EXPENSE","amount":50000,"category":"Hiburan"}]}
+{"text":"beli obat di apotek Rp32.500","kind":"transactions","transactions":[{"type":"EXPENSE","amount":32500,"category":"Kesehatan"}]}
+{"text":"kado ulang tahun temen goban","kind":"transactions","transactions":[{"type":"EXPENSE","amount":50000,"category":"Sosial & Hadiah"}]}
+{"text":"fotokopi modul 8rb, parkir 2rb","kind":"transactions","transactions":[{"type":"EXPENSE","amount":8000,"category":"Kuliah"},{"type":"EXPENSE","amount":2000,"category":"Transportasi"}]}
+{"text":"tadi pagi sarapan bubur 10rb","kind":"transactions","transactions":[{"type":"EXPENSE","amount":10000,"category":"Makanan & Minuman"}]}
+{"text":"beli sepatu setengah juta","kind":"transactions","transactions":[{"type":"EXPENSE","amount":500000,"category":"Belanja"}]}

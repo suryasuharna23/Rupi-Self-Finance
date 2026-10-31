@@ -1,0 +1,19 @@
+# PostgreSQL lokal untuk Fase 1. Redis, NATS, dan Kubernetes menyusul di Fase 2-3.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: rupi
+      POSTGRES_PASSWORD: rupi
+      POSTGRES_DB: rupi
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rupi"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  pgdata:
