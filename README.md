@@ -31,13 +31,21 @@ make db                     # PostgreSQL 16 lewat docker compose
 make run                    # migrasi otomatis lalu mulai long polling
 ```
 
-Tanpa `make` (misalnya PowerShell), set environment dari `.env` lalu jalankan
-`go run ./cmd/rupi`.
+Tanpa `make` di PowerShell:
+
+```powershell
+docker compose up -d postgres
+Get-Content .env | Where-Object { $_ -match "^[A-Z_]+=" } | ForEach-Object {
+  $k, $v = $_ -split "=", 2; Set-Item "env:$k" $v
+}
+go run ./cmd/rupi
+```
 
 ## Pengujian
 
 ```sh
 make test   # unit test
+make e2e    # alur chat lengkap: Postgres sungguhan + Telegram tiruan
 make eval   # akurasi parser terhadap testdata/eval/dataset.jsonl
 ```
 

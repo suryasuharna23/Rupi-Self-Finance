@@ -63,7 +63,7 @@ func run() error {
 		conversation.NewIdempotencyStore(db),
 		parser.New(nil), // LLM belum dipasang: pesan yang tak dipahami aturan dijawab dengan tanya balik
 	)
-	tg := telegram.NewClient(cfg.TelegramToken)
+	tg := telegram.NewClient(cfg.TelegramAPIURL, cfg.TelegramToken)
 	adapter := telegram.NewAdapter(tg, svc)
 
 	mux := http.NewServeMux()

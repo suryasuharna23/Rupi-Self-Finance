@@ -24,7 +24,7 @@ func (s *Store) Sum(ctx context.Context, userID string, q parser.ReportQuery) (i
 		JOIN transaction_svc.categories c ON c.id = t.category_id
 		WHERE t.user_id = $1 AND t.deleted_at IS NULL AND t.type = $2
 		  AND t.occurred_at >= $3 AND t.occurred_at < $4
-		  AND (cardinality($5::text[]) = 0 OR c.name = ANY($5))`,
+		  AND (COALESCE(cardinality($5::text[]), 0) = 0 OR c.name = ANY($5))`, // slice nil dikirim sebagai NULL
 		userID, int(q.Type), q.Range.Start, q.Range.End, q.Categories,
 	).Scan(&total)
 	return total, err

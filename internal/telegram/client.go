@@ -47,12 +47,15 @@ type InlineButton struct {
 }
 
 type Client struct {
-	token string
-	http  *http.Client
+	baseURL string
+	token   string
+	http    *http.Client
 }
 
-func NewClient(token string) *Client {
-	return &Client{token: token, http: &http.Client{Timeout: 60 * time.Second}}
+// NewClient membuat klien Bot API. baseURL biasanya https://api.telegram.org;
+// test end-to-end mengarahkannya ke server Telegram tiruan.
+func NewClient(baseURL, token string) *Client {
+	return &Client{baseURL: baseURL, token: token, http: &http.Client{Timeout: 60 * time.Second}}
 }
 
 func (c *Client) SendMessage(ctx context.Context, chatID int64, text string, buttons [][]InlineButton) error {
@@ -88,7 +91,7 @@ func (c *Client) call(ctx context.Context, method string, body any, result any) 
 		return err
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
-		"https://api.telegram.org/bot"+c.token+"/"+method, bytes.NewReader(payload))
+		c.baseURL+"/bot"+c.token+"/"+method, bytes.NewReader(payload))
 	if err != nil {
 		return err
 	}

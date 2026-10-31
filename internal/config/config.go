@@ -9,24 +9,26 @@ import (
 )
 
 type Config struct {
-	DatabaseURL   string
-	TelegramToken string
-	TelegramMode  string // "polling" (lokal) atau "webhook"
-	WebhookURL    string
-	WebhookSecret string
-	HTTPAddr      string
-	LogLevel      string
+	DatabaseURL    string
+	TelegramToken  string
+	TelegramAPIURL string
+	TelegramMode   string // "polling" (lokal) atau "webhook"
+	WebhookURL     string
+	WebhookSecret  string
+	HTTPAddr       string
+	LogLevel       string
 }
 
 func Load() (Config, error) {
 	c := Config{
-		DatabaseURL:   os.Getenv("DATABASE_URL"),
-		TelegramToken: os.Getenv("TELEGRAM_BOT_TOKEN"),
-		TelegramMode:  getenv("TELEGRAM_MODE", "polling"),
-		WebhookURL:    os.Getenv("TELEGRAM_WEBHOOK_URL"),
-		WebhookSecret: os.Getenv("TELEGRAM_WEBHOOK_SECRET"),
-		HTTPAddr:      getenv("HTTP_ADDR", ":8080"),
-		LogLevel:      getenv("LOG_LEVEL", "info"),
+		DatabaseURL:    os.Getenv("DATABASE_URL"),
+		TelegramToken:  os.Getenv("TELEGRAM_BOT_TOKEN"),
+		TelegramAPIURL: getenv("TELEGRAM_API_URL", "https://api.telegram.org"),
+		TelegramMode:   getenv("TELEGRAM_MODE", "polling"),
+		WebhookURL:     os.Getenv("TELEGRAM_WEBHOOK_URL"),
+		WebhookSecret:  os.Getenv("TELEGRAM_WEBHOOK_SECRET"),
+		HTTPAddr:       getenv("HTTP_ADDR", ":8080"),
+		LogLevel:       getenv("LOG_LEVEL", "info"),
 	}
 	var errs []error
 	if c.DatabaseURL == "" {

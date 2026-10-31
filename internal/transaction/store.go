@@ -107,11 +107,11 @@ func (s *Store) DeleteLast(ctx context.Context, userID string) (Transaction, err
 		FROM transaction_svc.categories c
 		WHERE c.id = t.category_id AND t.id = (
 			SELECT id FROM transaction_svc.transactions
-			WHERE user_id = $1 AND deleted_at IS NULL AND created_at > now() - $2::interval
+			WHERE user_id = $1 AND deleted_at IS NULL AND created_at > $2
 			ORDER BY created_at DESC LIMIT 1
 		)
 		RETURNING t.id, t.type, t.amount, t.description, c.name, t.occurred_at`,
-		userID, UndoWindow.String(),
+		userID, time.Now().Add(-UndoWindow),
 	).Scan(&t.ID, &t.Type, &t.Amount, &t.Description, &t.Category, &t.OccurredAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return t, ErrNotFound

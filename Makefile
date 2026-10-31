@@ -1,4 +1,4 @@
-.PHONY: db run test cover eval lint build
+.PHONY: db run test e2e cover eval lint build
 
 db:
 	docker compose up -d postgres
@@ -8,6 +8,10 @@ run:
 
 test:
 	go test ./...
+
+# Butuh Postgres yang berjalan (make db). Telegram memakai server tiruan.
+e2e:
+	RUPI_TEST_DATABASE_URL=postgres://rupi:rupi@localhost:5432/rupi?sslmode=disable go test -tags e2e -count=1 -v ./internal/e2e/
 
 cover:
 	go test -coverprofile=coverage.out ./internal/parser/... && go tool cover -func=coverage.out
