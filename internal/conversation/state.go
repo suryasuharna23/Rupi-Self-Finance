@@ -5,11 +5,11 @@ import (
 	"time"
 )
 
-// session menyimpan konteks percakapan yang sedang berjalan. Fase 1 memakai
-// memori proses; Fase 2 memindahkannya ke Redis (kunci conv:<user_id>).
+// session holds the ongoing conversation context. Phase 1 keeps it in
+// process memory; Phase 2 moves it to Redis (key conv:<user_id>).
 type session struct {
 	awaitingName bool
-	pendingText  string // pesan yang menunggu jawaban "Berapa nominalnya?"
+	pendingText  string // message waiting for an answer to "Berapa nominalnya?"
 	expiresAt    time.Time
 }
 
@@ -51,7 +51,7 @@ func (s *sessionStore) Delete(userID string) {
 	delete(s.data, userID)
 }
 
-// rateLimiter adalah fixed window per pengguna.
+// rateLimiter is a per-user fixed window.
 type rateLimiter struct {
 	mu     sync.Mutex
 	limit  int

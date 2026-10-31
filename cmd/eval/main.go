@@ -1,5 +1,5 @@
-// Command eval mengukur akurasi parser terhadap dataset berlabel (NFR-03)
-// dan porsi pesan yang selesai lewat jalur aturan (NFR-04).
+// Command eval measures parser accuracy against a labelled dataset (NFR-03)
+// and the share of messages handled by the rule path alone (NFR-04).
 //
 //	go run ./cmd/eval -dataset testdata/eval/dataset.jsonl
 package main
@@ -36,9 +36,9 @@ var kindNames = map[parser.Kind]string{
 }
 
 func main() {
-	path := flag.String("dataset", "testdata/eval/dataset.jsonl", "file JSONL berlabel")
-	minAccuracy := flag.Float64("min-accuracy", 0.95, "batas akurasi ekstraksi; di bawahnya exit 1")
-	verbose := flag.Bool("v", false, "tampilkan setiap kesalahan")
+	path := flag.String("dataset", "testdata/eval/dataset.jsonl", "labelled JSONL file")
+	minAccuracy := flag.Float64("min-accuracy", 0.95, "minimum extraction accuracy; exit 1 below it")
+	verbose := flag.Bool("v", false, "print every mistake")
 	flag.Parse()
 
 	examples, err := load(*path)
@@ -55,7 +55,7 @@ func main() {
 			ruleHandled++
 		}
 		if kindNames[res.Kind] != ex.Kind {
-			report(*verbose, ex.Text, "jenis %q, harusnya %q", kindNames[res.Kind], ex.Kind)
+			report(*verbose, ex.Text, "kind %q, expected %q", kindNames[res.Kind], ex.Kind)
 			txTotal += len(ex.Transactions)
 			continue
 		}
@@ -70,12 +70,12 @@ func main() {
 				txCorrect++
 			} else {
 				allOK = false
-				report(*verbose, ex.Text, "tx[%d] %s %d, harusnya %s %d", i, got.Type, got.Amount, want.Type, want.Amount)
+				report(*verbose, ex.Text, "tx[%d] %s %d, expected %s %d", i, got.Type, got.Amount, want.Type, want.Amount)
 			}
 			if got.Category == want.Category {
 				catCorrect++
 			} else {
-				report(*verbose, ex.Text, "tx[%d] kategori %q, harusnya %q", i, got.Category, want.Category)
+				report(*verbose, ex.Text, "tx[%d] category %q, expected %q", i, got.Category, want.Category)
 			}
 		}
 		if allOK {
@@ -85,11 +85,11 @@ func main() {
 
 	n := len(examples)
 	extraction := ratio(txCorrect, txTotal)
-	fmt.Printf("contoh               : %d (target dataset MVP: 300)\n", n)
-	fmt.Printf("pesan benar          : %d/%d (%.1f%%)\n", correct, n, 100*ratio(correct, n))
-	fmt.Printf("ekstraksi transaksi  : %d/%d (%.1f%%, target >= 95%%)\n", txCorrect, txTotal, 100*extraction)
-	fmt.Printf("kategori             : %d/%d (%.1f%%, target >= 85%%)\n", catCorrect, txTotal, 100*ratio(catCorrect, txTotal))
-	fmt.Printf("selesai lewat aturan : %d/%d (%.1f%%, target >= 60%%)\n", ruleHandled, n, 100*ratio(ruleHandled, n))
+	fmt.Printf("examples            : %d (MVP dataset target: 300)\n", n)
+	fmt.Printf("messages correct    : %d/%d (%.1f%%)\n", correct, n, 100*ratio(correct, n))
+	fmt.Printf("tx extraction       : %d/%d (%.1f%%, target >= 95%%)\n", txCorrect, txTotal, 100*extraction)
+	fmt.Printf("category            : %d/%d (%.1f%%, target >= 85%%)\n", catCorrect, txTotal, 100*ratio(catCorrect, txTotal))
+	fmt.Printf("handled by rules    : %d/%d (%.1f%%, target >= 60%%)\n", ruleHandled, n, 100*ratio(ruleHandled, n))
 	if extraction < *minAccuracy {
 		os.Exit(1)
 	}

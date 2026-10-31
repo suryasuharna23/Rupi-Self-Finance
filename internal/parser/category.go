@@ -47,12 +47,12 @@ var incomeKeywords = map[string][]string{
 	CatScholarship: {"beasiswa"},
 }
 
-// incomeWords menandai pesan sebagai pemasukan.
+// incomeWords mark a message as income.
 var incomeWords = []string{"dapet", "dapat", "gajian", "transferan", "dikasih", "cair", "beasiswa", "terima", "masuk"}
 
 func IsIncome(text string) bool { return containsAny(text, incomeWords) }
 
-// Categorize mengembalikan kategori bawaan dan apakah kata kuncinya dikenali.
+// Categorize returns a default category and whether a keyword was recognised.
 func Categorize(text string, t TransactionType) (string, bool) {
 	keywords, order := expenseKeywords, ExpenseCategories
 	if t == TypeIncome {
@@ -66,7 +66,7 @@ func Categorize(text string, t TransactionType) (string, bool) {
 	return CatOther, false
 }
 
-// containsAny mencocokkan kata utuh (atau frasa) tanpa membedakan huruf besar.
+// containsAny matches whole words (or phrases), case-insensitively.
 func containsAny(text string, words []string) bool {
 	padded := " " + strings.Join(strings.FieldsFunc(strings.ToLower(text), isSeparator), " ") + " "
 	for _, w := range words {

@@ -1,4 +1,4 @@
-# PostgreSQL lokal untuk Fase 1. Redis, NATS, dan Kubernetes menyusul di Fase 2-3.
+# Local PostgreSQL for Phase 1. Redis, NATS, and Kubernetes follow in Phases 2-3.
 services:
   postgres:
     image: postgres:16-alpine

@@ -1,8 +1,8 @@
-// Package conversation mengatur alur percakapan: onboarding, klarifikasi,
-// koreksi, dan merangkai balasan (calon Conversation Service di Fase 2).
+// Package conversation drives the chat flow: onboarding, clarification,
+// corrections, and composing replies (the future Conversation Service in Phase 2).
 //
-// Dependensi didefinisikan sebagai interface agar batasnya sama dengan
-// kontrak gRPC di Fase 2.
+// Dependencies are interfaces so their boundaries match the Phase 2
+// gRPC contracts.
 package conversation
 
 import (
@@ -22,9 +22,9 @@ import (
 
 type Incoming struct {
 	Channel      string
-	MessageID    string // unik per kanal, untuk idempotensi
+	MessageID    string // unique per channel, for idempotency
 	ChatID       int64
-	ExternalID   int64 // ID pengguna di kanal (Telegram user ID)
+	ExternalID   int64 // user ID within the channel (Telegram user ID)
 	Text         string
 	CallbackData string
 	ReceivedAt   time.Time
@@ -104,8 +104,8 @@ const helpText = "Cara pakai Rupi:\n" +
 	"• Ringkasan: /ringkas\n" +
 	"• Hapus akun: /hapusakun"
 
-// HandleMessage memproses satu pesan masuk. Pesan yang sama yang dikirim
-// ulang (retry webhook) tidak diproses dua kali (NFR-07).
+// HandleMessage processes one incoming message. The same message delivered
+// again (webhook retry) is never processed twice (NFR-07).
 func (s *Service) HandleMessage(ctx context.Context, in Incoming) (replies []Reply, err error) {
 	first, err := s.idem.MarkProcessed(ctx, in.Channel, in.MessageID)
 	if err != nil {
@@ -117,7 +117,7 @@ func (s *Service) HandleMessage(ctx context.Context, in Incoming) (replies []Rep
 	defer func() {
 		if err != nil {
 			if uerr := s.idem.Unmark(context.WithoutCancel(ctx), in.Channel, in.MessageID); uerr != nil {
-				slog.Error("unmark processed message gagal", "err", uerr)
+				slog.Error("unmark processed message failed", "err", uerr)
 			}
 		}
 	}()
@@ -165,7 +165,7 @@ func (s *Service) HandleMessage(ctx context.Context, in Incoming) (replies []Rep
 		return s.undoLast(ctx, u)
 	}
 
-	// Jawaban untuk "Berapa nominalnya?" digabung dengan pesan sebelumnya.
+	// An answer to "Berapa nominalnya?" is merged with the previous message.
 	if sess.pendingText != "" && len(parser.FindAmounts(msg)) > 0 {
 		msg = sess.pendingText + " " + msg
 	}

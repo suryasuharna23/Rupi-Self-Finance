@@ -6,11 +6,11 @@ import (
 	"strings"
 )
 
-// Amount adalah nominal yang ditemukan dalam teks beserta posisinya.
+// Amount is an amount found in the text, along with its position.
 type Amount struct {
 	Value int64
-	// Ambiguous true bila nominal perlu dikonfirmasi, misalnya "15" tanpa
-	// satuan atau slang lama seperti "cepek".
+	// Ambiguous is true when the amount needs confirmation, e.g. "15" without
+	// a unit, or old slang like "cepek".
 	Ambiguous  bool
 	Start, End int
 }
@@ -44,7 +44,7 @@ var multipliers = map[string]int64{
 	"juta": 1_000_000,
 }
 
-// FindAmounts mengembalikan semua nominal dalam teks, terurut sesuai posisi.
+// FindAmounts returns every amount in the text, ordered by position.
 func FindAmounts(text string) []Amount {
 	var out []Amount
 	for _, m := range slangAmountRe.FindAllStringSubmatchIndex(text, -1) {
@@ -68,7 +68,7 @@ func FindAmounts(text string) []Amount {
 	return out
 }
 
-// parseNumber menangani "15000", "15.000", "15,000", "1,5" + satuan, dst.
+// parseNumber handles "15000", "15.000", "15,000", "1,5" + unit, and so on.
 func parseNumber(num, suffix string, hasRp bool) (value int64, ambiguous, ok bool) {
 	mult := multipliers[suffix]
 	intPart, fracPart := num, ""
@@ -99,7 +99,7 @@ func parseNumber(num, suffix string, hasRp bool) (value int64, ambiguous, ok boo
 	if value < MinAmount || value > MaxAmount {
 		return 0, false, false
 	}
-	// Angka kecil tanpa satuan ("15") bisa berarti Rp15 atau Rp15.000.
+	// A small number without a unit ("15") could mean Rp15 or Rp15.000.
 	ambiguous = suffix == "" && !hasRp && value < 1_000
 	return value, ambiguous, true
 }
@@ -127,7 +127,7 @@ func pow10(n int) int64 {
 func insertSorted(list []Amount, a Amount) []Amount {
 	for i, x := range list {
 		if a.Start < x.End && x.Start < a.End {
-			return list // tumpang tindih dengan slang yang sudah ditemukan
+			return list // overlaps slang that was already found
 		}
 		if a.Start < x.Start {
 			return append(list[:i], append([]Amount{a}, list[i:]...)...)

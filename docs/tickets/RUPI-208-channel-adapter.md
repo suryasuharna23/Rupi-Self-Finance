@@ -1,20 +1,20 @@
-# RUPI-208 · Channel Adapter sebagai service terpisah
+# RUPI-208 · Channel Adapter as a separate service
 
-| Fase | Prioritas | Ukuran | Referensi |
+| Phase | Priority | Size | References |
 | --- | --- | --- | --- |
-| 2 · Microservices gRPC | P0 | M | SEC-01, NFR-07, alur satu pesan |
+| 2 · gRPC microservices | P0 | M | SEC-01, NFR-07, single-message flow |
 
-## Cakupan
-- `cmd/channel-adapter` berisi `internal/telegram`; satu-satunya service yang
-  terbuka ke internet (Ingress).
-- Cek duplikasi ID pesan di Redis sebelum memanggil `ConversationService.HandleMessage`.
-- Berlangganan `SubscribeOutbound` untuk mengirim peringatan dan laporan ke Telegram.
-- Mode webhook dengan verifikasi `secret_token` sebagai default di cluster.
+## Scope
+- `cmd/channel-adapter` containing `internal/telegram`; the only service
+  exposed to the internet (Ingress).
+- Check for duplicate message IDs in Redis before calling `ConversationService.HandleMessage`.
+- Subscribe to `SubscribeOutbound` to deliver alerts and reports to Telegram.
+- Webhook mode with `secret_token` verification as the default in the cluster.
 
-## Kriteria penerimaan
-- [ ] Webhook tanpa `secret_token` valid ditolak 403.
-- [ ] Webhook yang sama dikirim dua kali hanya menghasilkan satu set transaksi.
-- [ ] Pesan proaktif dari stream terkirim ke chat yang benar.
+## Acceptance criteria
+- [ ] Webhooks without a valid `secret_token` are rejected with 403.
+- [ ] The same webhook delivered twice produces only one set of transactions.
+- [ ] Proactive messages from the stream are delivered to the correct chat.
 
-## Dependensi
+## Dependencies
 RUPI-207.

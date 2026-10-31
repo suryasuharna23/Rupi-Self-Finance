@@ -1,20 +1,20 @@
-# RUPI-401 · Observability: metrik, log, dan tracing
+# RUPI-401 · Observability: metrics, logs, and tracing
 
-| Fase | Prioritas | Ukuran | Referensi |
+| Phase | Priority | Size | References |
 | --- | --- | --- | --- |
-| 4 · Siap produksi | P1 | L | NFR-09, NFR-11 |
+| 4 · Production readiness | P1 | L | NFR-09, NFR-11 |
 
-## Cakupan
-- Namespace `monitoring` dengan Prometheus, Grafana, Loki, dan OpenTelemetry Collector.
-- Instrumentasi OTel di interceptor gRPC; trace ID sama dengan `x-request-id`.
-- Metrik: latensi per RPC, rasio error, porsi jalur aturan vs LLM, token dan biaya LLM.
-- Dashboard Grafana: kesehatan service, biaya LLM, akurasi parser (dari `parser_logs`).
-- Alert dasar: error rate tinggi, p95 latensi melewati NFR-01/NFR-02.
+## Scope
+- A `monitoring` namespace with Prometheus, Grafana, Loki, and the OpenTelemetry Collector.
+- OTel instrumentation in the gRPC interceptors; the trace ID equals `x-request-id`.
+- Metrics: per-RPC latency, error rate, share of rule path vs LLM, LLM tokens and cost.
+- Grafana dashboards: service health, LLM cost, parser accuracy (from `parser_logs`).
+- Basic alerts: high error rate, p95 latency exceeding NFR-01/NFR-02.
 
-## Kriteria penerimaan
-- [ ] Satu pesan bisa ditelusuri dari Channel Adapter sampai PostgreSQL dalam satu trace.
-- [ ] Dashboard menampilkan p95 latensi jalur aturan dan jalur LLM.
-- [ ] Dashboard menampilkan biaya LLM per pengguna aktif.
+## Acceptance criteria
+- [ ] A single message can be traced from the Channel Adapter to PostgreSQL in one trace.
+- [ ] The dashboard shows p95 latency for the rule path and the LLM path.
+- [ ] The dashboard shows LLM cost per active user.
 
-## Dependensi
+## Dependencies
 RUPI-209.

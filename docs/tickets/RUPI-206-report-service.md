@@ -1,23 +1,23 @@
-# RUPI-206 · Pecah Report Service
+# RUPI-206 · Split out the Report Service
 
-| Fase | Prioritas | Ukuran | Referensi |
+| Phase | Priority | Size | References |
 | --- | --- | --- | --- |
-| 2 · Microservices gRPC | P0 | M | `ReportService.RunQuery`, FR-20, FR-21 |
+| 2 · gRPC microservices | P0 | M | `ReportService.RunQuery`, FR-20, FR-21 |
 
-## Latar
-Dokumen menyatakan service tidak membaca tabel milik service lain secara
-langsung, tetapi diagram arsitektur menunjukkan Report Service membaca
-PostgreSQL. Putuskan dulu pendekatannya.
+## Background
+The requirements document states that services do not read tables owned by other services
+directly, yet the architecture diagram shows the Report Service reading from
+PostgreSQL. Decide on the approach first.
 
-## Cakupan
-- Putuskan: (a) read-only role ke schema transaksi, (b) memanggil
-  `TransactionService.ListTransactions`, atau (c) proyeksi sendiri dari event NATS (Fase 3).
-  Catat keputusannya di `docs/`.
-- `cmd/report-service` dengan `RunQuery(ReportQuery) → ReportResult`.
+## Scope
+- Decide between: (a) a read-only role on the transaction schema, (b) calling
+  `TransactionService.ListTransactions`, or (c) its own projection built from NATS events (Phase 3).
+  Record the decision in `docs/`.
+- `cmd/report-service` with `RunQuery(ReportQuery) → ReportResult`.
 
-## Kriteria penerimaan
-- [ ] `/ringkas` dan pertanyaan total memberi angka yang sama seperti versi monolit.
-- [ ] Setiap query difilter `x-user-id` (SEC-02).
+## Acceptance criteria
+- [ ] `/ringkas` and total questions return the same numbers as the monolith version.
+- [ ] Every query is filtered by `x-user-id` (SEC-02).
 
-## Dependensi
+## Dependencies
 RUPI-201, RUPI-202, RUPI-204.

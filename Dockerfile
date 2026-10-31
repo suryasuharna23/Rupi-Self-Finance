@@ -5,7 +5,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/rupi ./cmd/rupi
 
-# Image non-root tanpa shell (SEC-12)
+# Non-root image without a shell (SEC-12)
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /out/rupi /rupi
 USER nonroot:nonroot

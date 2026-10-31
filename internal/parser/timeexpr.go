@@ -20,12 +20,12 @@ type timeRule struct {
 	resolve func(m []string, now time.Time) time.Time
 }
 
-// Urutan penting: pola yang lebih spesifik dicoba lebih dulu.
+// Order matters: more specific patterns are tried first.
 var timeRules = []timeRule{
 	{regexp.MustCompile(`(?i)\bkemarin\s+lusa\b`), func(_ []string, now time.Time) time.Time {
 		return atNoon(now.AddDate(0, 0, -2))
 	}},
-	// "minggu lalu" berarti pekan lalu, bukan hari Minggu.
+	// "minggu lalu" means last week, not last Sunday.
 	{regexp.MustCompile(`(?i)\bminggu\s+lalu\b`), func(_ []string, now time.Time) time.Time {
 		return atNoon(now.AddDate(0, 0, -7))
 	}},
@@ -46,7 +46,7 @@ var timeRules = []timeRule{
 		if day > now.Day() {
 			month--
 		}
-		// Batasi ke hari terakhir bulan: "tgl 31" di bulan yang 30 hari.
+		// Clamp to the month's last day: "tgl 31" in a 30-day month.
 		last := time.Date(year, month+1, 0, 0, 0, 0, 0, now.Location()).Day()
 		return time.Date(year, month, min(day, last), 12, 0, 0, 0, now.Location())
 	}},
@@ -54,16 +54,16 @@ var timeRules = []timeRule{
 		h := partOfDayHour[strings.ToLower(m[1])]
 		t := time.Date(now.Year(), now.Month(), now.Day(), h, 0, 0, 0, now.Location())
 		if t.After(now) {
-			t = t.AddDate(0, 0, -1) // "tadi malam" yang dikirim dini hari
+			t = t.AddDate(0, 0, -1) // "tadi malam" sent after midnight
 		}
 		return t
 	}},
 	{regexp.MustCompile(`(?i)\btadi\b`), func(_ []string, now time.Time) time.Time { return now }},
 }
 
-// ResolveTime mencari ekspresi waktu relatif pertama dalam teks.
-// Mengembalikan waktu terjadinya dan teks yang ekspresinya sudah dibuang.
-// Tanpa ekspresi waktu, hasilnya adalah now.
+// ResolveTime finds the first relative time expression in the text.
+// It returns when the transaction happened and the text with the expression removed.
+// Without a time expression, the result is now.
 func ResolveTime(text string, now time.Time) (time.Time, string) {
 	for _, r := range timeRules {
 		loc := r.re.FindStringSubmatchIndex(text)

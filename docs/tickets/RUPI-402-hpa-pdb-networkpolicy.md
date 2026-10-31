@@ -1,19 +1,19 @@
-# RUPI-402 · HPA, PodDisruptionBudget, dan NetworkPolicy
+# RUPI-402 · HPA, PodDisruptionBudget, and NetworkPolicy
 
-| Fase | Prioritas | Ukuran | Referensi |
+| Phase | Priority | Size | References |
 | --- | --- | --- | --- |
-| 4 · Siap produksi | P1 | M | NFR-05, NFR-06, Ketentuan wajib Deployment |
+| 4 · Production readiness | P1 | M | NFR-05, NFR-06, Mandatory Deployment requirements |
 
-## Cakupan
-- HPA Parser Service 2–10 Pod, target CPU 70%.
-- `PodDisruptionBudget` dengan `minAvailable: 1` untuk setiap Deployment.
-- `NetworkPolicy` default deny; hanya jalur panggilan di diagram arsitektur yang diizinkan.
-- Semua container berjalan non-root dengan filesystem read-only (SEC-12).
+## Scope
+- HPA for the Parser Service: 2–10 Pods, 70% CPU target.
+- A `PodDisruptionBudget` with `minAvailable: 1` for every Deployment.
+- A default-deny `NetworkPolicy`; only the call paths in the architecture diagram are allowed.
+- All containers run as non-root with a read-only filesystem (SEC-12).
 
-## Kriteria penerimaan
-- [ ] Panggilan yang tidak ada di diagram (misalnya Channel Adapter → PostgreSQL) diblokir.
-- [ ] `kubectl drain` sebuah node tidak membuat service mana pun turun ke 0 replika.
-- [ ] HPA naik saat beban dan turun kembali setelahnya.
+## Acceptance criteria
+- [ ] Calls not shown in the diagram (for example Channel Adapter → PostgreSQL) are blocked.
+- [ ] Running `kubectl drain` on a node does not bring any service down to 0 replicas.
+- [ ] The HPA scales up under load and back down afterwards.
 
-## Dependensi
+## Dependencies
 RUPI-209.

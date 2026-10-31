@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Rupiah memformat nominal seperti "Rp15.000".
+// Rupiah formats an amount like "Rp15.000".
 func Rupiah(amount int64) string {
 	sign := ""
 	if amount < 0 {

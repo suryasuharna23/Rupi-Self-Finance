@@ -1,5 +1,5 @@
--- Satu database, satu schema per service: di Fase 2 setiap service hanya
--- membaca schema miliknya sendiri, jadi tidak ada foreign key lintas schema.
+-- One database, one schema per service: in Phase 2 each service only reads
+-- its own schema, so there are no cross-schema foreign keys.
 CREATE SCHEMA IF NOT EXISTS user_svc;
 CREATE SCHEMA IF NOT EXISTS transaction_svc;
 CREATE SCHEMA IF NOT EXISTS conversation_svc;
@@ -13,14 +13,14 @@ CREATE TABLE user_svc.users (
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at   TIMESTAMPTZ
 );
--- Soft delete lalu purge 30 hari; pengguna boleh /start ulang sebelum purge.
+-- Soft delete, then purge after 30 days; users may /start again before the purge.
 CREATE UNIQUE INDEX users_telegram_id_active ON user_svc.users (telegram_id) WHERE deleted_at IS NULL;
 
 CREATE TABLE transaction_svc.categories (
     id       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id  UUID, -- NULL = kategori bawaan
+    user_id  UUID, -- NULL = default category
     name     TEXT NOT NULL,
-    type     SMALLINT NOT NULL, -- 1 = pengeluaran, 2 = pemasukan
+    type     SMALLINT NOT NULL, -- 1 = expense, 2 = income
     keywords TEXT[] NOT NULL DEFAULT '{}',
     UNIQUE NULLS NOT DISTINCT (user_id, name, type)
 );
@@ -34,7 +34,7 @@ INSERT INTO transaction_svc.categories (name, type) VALUES
 CREATE TABLE transaction_svc.transactions (
     id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id           UUID NOT NULL,
-    wallet_id         UUID, -- fase dompet bersama
+    wallet_id         UUID, -- shared wallet phase
     type              SMALLINT NOT NULL,
     amount            BIGINT NOT NULL CHECK (amount > 0),
     description       TEXT NOT NULL DEFAULT '',

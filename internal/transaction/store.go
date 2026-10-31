@@ -1,5 +1,5 @@
-// Package transaction memiliki data transaksi dan kategori (calon
-// Transaction Service di Fase 2). Setiap query wajib difilter user_id (SEC-02).
+// Package transaction owns transaction and category data (the future
+// Transaction Service in Phase 2). Every query must filter by user_id (SEC-02).
 package transaction
 
 import (
@@ -15,9 +15,9 @@ import (
 	"github.com/suryasuharna23/rupi/internal/parser"
 )
 
-var ErrNotFound = errors.New("transaksi tidak ditemukan")
+var ErrNotFound = errors.New("transaction not found")
 
-// UndoWindow adalah batas waktu /undo (FR-15).
+// UndoWindow is how far back /undo reaches (FR-15).
 const UndoWindow = 24 * time.Hour
 
 type Transaction struct {
@@ -33,7 +33,7 @@ type Store struct{ db *pgxpool.Pool }
 
 func NewStore(db *pgxpool.Pool) *Store { return &Store{db: db} }
 
-// Create menyimpan semua transaksi dari satu pesan secara atomik.
+// Create stores every transaction from one message atomically.
 func (s *Store) Create(ctx context.Context, userID, sourceMessageID string, source parser.Source, txs []parser.ParsedTransaction) ([]Transaction, error) {
 	out := make([]Transaction, 0, len(txs))
 	err := pgx.BeginFunc(ctx, s.db, func(tx pgx.Tx) error {
@@ -51,7 +51,7 @@ func (s *Store) Create(ctx context.Context, userID, sourceMessageID string, sour
 				userID, int(p.Type), p.Amount, p.Description, p.Category, p.OccurredAt, sourceMessageID, source.String(),
 			).Scan(&id)
 			if err != nil {
-				return fmt.Errorf("insert transaksi: %w", err)
+				return fmt.Errorf("insert transaction: %w", err)
 			}
 			out = append(out, Transaction{ID: id, Type: p.Type, Amount: p.Amount, Description: p.Description, Category: p.Category, OccurredAt: p.OccurredAt})
 		}
@@ -60,7 +60,7 @@ func (s *Store) Create(ctx context.Context, userID, sourceMessageID string, sour
 	return out, err
 }
 
-// UpdateAmount mengoreksi nominal dan mencatat jejak audit (FR-14).
+// UpdateAmount corrects the amount and records an audit trail (FR-14).
 func (s *Store) UpdateAmount(ctx context.Context, userID, txID string, amount int64) (Transaction, error) {
 	var t Transaction
 	err := pgx.BeginFunc(ctx, s.db, func(tx pgx.Tx) error {
@@ -91,7 +91,7 @@ func (s *Store) UpdateAmount(ctx context.Context, userID, txID string, amount in
 	return t, err
 }
 
-// DeleteByMessage menghapus transaksi dari satu pesan (tombol Batalkan, FR-13).
+// DeleteByMessage deletes the transactions from one message (Batalkan button, FR-13).
 func (s *Store) DeleteByMessage(ctx context.Context, userID, sourceMessageID string) (int64, error) {
 	tag, err := s.db.Exec(ctx, `
 		UPDATE transaction_svc.transactions SET deleted_at = now()
@@ -99,7 +99,7 @@ func (s *Store) DeleteByMessage(ctx context.Context, userID, sourceMessageID str
 	return tag.RowsAffected(), err
 }
 
-// DeleteLast menghapus transaksi terakhir yang dibuat dalam UndoWindow (FR-15).
+// DeleteLast deletes the latest transaction created within UndoWindow (FR-15).
 func (s *Store) DeleteLast(ctx context.Context, userID string) (Transaction, error) {
 	var t Transaction
 	err := s.db.QueryRow(ctx, `
@@ -107,11 +107,11 @@ func (s *Store) DeleteLast(ctx context.Context, userID string) (Transaction, err
 		FROM transaction_svc.categories c
 		WHERE c.id = t.category_id AND t.id = (
 			SELECT id FROM transaction_svc.transactions
-			WHERE user_id = $1 AND deleted_at IS NULL AND created_at > now() - $2::interval
+			WHERE user_id = $1 AND deleted_at IS NULL AND created_at > $2
 			ORDER BY created_at DESC LIMIT 1
 		)
 		RETURNING t.id, t.type, t.amount, t.description, c.name, t.occurred_at`,
-		userID, UndoWindow.String(),
+		userID, time.Now().Add(-UndoWindow),
 	).Scan(&t.ID, &t.Type, &t.Amount, &t.Description, &t.Category, &t.OccurredAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return t, ErrNotFound
@@ -119,7 +119,7 @@ func (s *Store) DeleteLast(ctx context.Context, userID string) (Transaction, err
 	return t, err
 }
 
-// FindRecent mengembalikan transaksi terbaru sebagai konteks koreksi.
+// FindRecent returns the latest transactions as context for corrections.
 func (s *Store) FindRecent(ctx context.Context, userID string, limit int) ([]parser.RecentTransaction, error) {
 	rows, err := s.db.Query(ctx, `
 		SELECT t.id, t.description, t.amount, c.name, t.occurred_at
@@ -137,7 +137,7 @@ func (s *Store) FindRecent(ctx context.Context, userID string, limit int) ([]par
 	})
 }
 
-// DeleteAllForUser menghapus permanen semua transaksi pengguna (FR-03).
+// DeleteAllForUser permanently deletes all of a user's transactions (FR-03).
 func (s *Store) DeleteAllForUser(ctx context.Context, userID string) error {
 	return pgx.BeginFunc(ctx, s.db, func(tx pgx.Tx) error {
 		if _, err := tx.Exec(ctx, `DELETE FROM transaction_svc.transactions WHERE user_id = $1`, userID); err != nil {

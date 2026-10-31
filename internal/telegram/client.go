@@ -1,5 +1,5 @@
-// Package telegram adalah Channel Adapter untuk Telegram Bot API: menerima
-// update (long polling atau webhook) dan mengirim balasan.
+// Package telegram is the Channel Adapter for the Telegram Bot API: it receives
+// updates (long polling or webhook) and sends replies.
 package telegram
 
 import (
@@ -47,12 +47,15 @@ type InlineButton struct {
 }
 
 type Client struct {
-	token string
-	http  *http.Client
+	baseURL string
+	token   string
+	http    *http.Client
 }
 
-func NewClient(token string) *Client {
-	return &Client{token: token, http: &http.Client{Timeout: 60 * time.Second}}
+// NewClient creates a Bot API client. baseURL is normally https://api.telegram.org;
+// end-to-end tests point it at a fake Telegram server.
+func NewClient(baseURL, token string) *Client {
+	return &Client{baseURL: baseURL, token: token, http: &http.Client{Timeout: 60 * time.Second}}
 }
 
 func (c *Client) SendMessage(ctx context.Context, chatID int64, text string, buttons [][]InlineButton) error {
@@ -67,7 +70,7 @@ func (c *Client) AnswerCallback(ctx context.Context, callbackID string) error {
 	return c.call(ctx, "answerCallbackQuery", map[string]any{"callback_query_id": callbackID}, nil)
 }
 
-// GetUpdates dipakai mode long polling untuk pengembangan lokal.
+// GetUpdates is used by long-polling mode for local development.
 func (c *Client) GetUpdates(ctx context.Context, offset int64) ([]Update, error) {
 	var updates []Update
 	err := c.call(ctx, "getUpdates", map[string]any{"offset": offset, "timeout": 50}, &updates)
@@ -88,15 +91,15 @@ func (c *Client) call(ctx context.Context, method string, body any, result any) 
 		return err
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
-		"https://api.telegram.org/bot"+c.token+"/"+method, bytes.NewReader(payload))
+		c.baseURL+"/bot"+c.token+"/"+method, bytes.NewReader(payload))
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := c.http.Do(req)
 	if err != nil {
-		// Error dari net/http menyertakan URL yang berisi token bot.
-		return fmt.Errorf("telegram %s: request gagal", method)
+		// Errors from net/http include the URL, which contains the bot token.
+		return fmt.Errorf("telegram %s: request failed", method)
 	}
 	defer resp.Body.Close()
 

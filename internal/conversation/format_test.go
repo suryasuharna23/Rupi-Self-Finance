@@ -18,13 +18,13 @@ func TestRateLimiter(t *testing.T) {
 	r := newRateLimiter(2, time.Minute)
 	now := time.Now()
 	if !r.Allow(1, now) || !r.Allow(1, now) || r.Allow(1, now) {
-		t.Fatal("pesan ketiga dalam satu jendela harus ditolak")
+		t.Fatal("third message within one window must be rejected")
 	}
 	if !r.Allow(2, now) {
-		t.Fatal("pengguna lain tidak boleh terpengaruh")
+		t.Fatal("other users must not be affected")
 	}
 	if !r.Allow(1, now.Add(time.Minute)) {
-		t.Fatal("jendela baru harus mengizinkan lagi")
+		t.Fatal("a new window must allow again")
 	}
 }
 
@@ -36,6 +36,6 @@ func TestSessionExpires(t *testing.T) {
 		t.Fatalf("got %+v", got)
 	}
 	if got := s.Get("u1", now.Add(31*time.Minute)); got.pendingText != "" {
-		t.Fatalf("sesi harus kedaluwarsa, got %+v", got)
+		t.Fatalf("session must expire, got %+v", got)
 	}
 }
