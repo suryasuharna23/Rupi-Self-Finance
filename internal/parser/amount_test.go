@@ -35,7 +35,7 @@ func TestFindAmounts(t *testing.T) {
 		t.Run(c.in, func(t *testing.T) {
 			got := FindAmounts(c.in)
 			if len(got) != 1 {
-				t.Fatalf("FindAmounts(%q) = %d nominal, want 1: %+v", c.in, len(got), got)
+				t.Fatalf("FindAmounts(%q) = %d amounts, want 1: %+v", c.in, len(got), got)
 			}
 			if got[0].Value != c.want || got[0].Ambiguous != c.ambiguous {
 				t.Errorf("FindAmounts(%q) = %d (ambiguous=%v), want %d (ambiguous=%v)",
@@ -54,6 +54,6 @@ func TestFindAmountsMultiple(t *testing.T) {
 
 func TestFindAmountsRejectsOutOfRange(t *testing.T) {
 	if got := FindAmounts("2000jt"); len(got) != 0 {
-		t.Fatalf("nominal di atas Rp1 miliar harus ditolak, got %+v", got)
+		t.Fatalf("amounts above Rp1 billion must be rejected, got %+v", got)
 	}
 }

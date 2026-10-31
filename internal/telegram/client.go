@@ -1,5 +1,5 @@
-// Package telegram adalah Channel Adapter untuk Telegram Bot API: menerima
-// update (long polling atau webhook) dan mengirim balasan.
+// Package telegram is the Channel Adapter for the Telegram Bot API: it receives
+// updates (long polling or webhook) and sends replies.
 package telegram
 
 import (
@@ -52,8 +52,8 @@ type Client struct {
 	http    *http.Client
 }
 
-// NewClient membuat klien Bot API. baseURL biasanya https://api.telegram.org;
-// test end-to-end mengarahkannya ke server Telegram tiruan.
+// NewClient creates a Bot API client. baseURL is normally https://api.telegram.org;
+// end-to-end tests point it at a fake Telegram server.
 func NewClient(baseURL, token string) *Client {
 	return &Client{baseURL: baseURL, token: token, http: &http.Client{Timeout: 60 * time.Second}}
 }
@@ -70,7 +70,7 @@ func (c *Client) AnswerCallback(ctx context.Context, callbackID string) error {
 	return c.call(ctx, "answerCallbackQuery", map[string]any{"callback_query_id": callbackID}, nil)
 }
 
-// GetUpdates dipakai mode long polling untuk pengembangan lokal.
+// GetUpdates is used by long-polling mode for local development.
 func (c *Client) GetUpdates(ctx context.Context, offset int64) ([]Update, error) {
 	var updates []Update
 	err := c.call(ctx, "getUpdates", map[string]any{"offset": offset, "timeout": 50}, &updates)
@@ -98,8 +98,8 @@ func (c *Client) call(ctx context.Context, method string, body any, result any) 
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := c.http.Do(req)
 	if err != nil {
-		// Error dari net/http menyertakan URL yang berisi token bot.
-		return fmt.Errorf("telegram %s: request gagal", method)
+		// Errors from net/http include the URL, which contains the bot token.
+		return fmt.Errorf("telegram %s: request failed", method)
 	}
 	defer resp.Body.Close()
 

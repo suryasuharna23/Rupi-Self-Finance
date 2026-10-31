@@ -1,17 +1,17 @@
-# RUPI-205 · Pecah User Service
+# RUPI-205 · Split out the User Service
 
-| Fase | Prioritas | Ukuran | Referensi |
+| Phase | Priority | Size | References |
 | --- | --- | --- | --- |
-| 2 · Microservices gRPC | P0 | S | `UserService`, FR-01 – FR-03 |
+| 2 · gRPC microservices | P0 | S | `UserService`, FR-01 – FR-03 |
 
-## Cakupan
-- `cmd/user-service` dengan RPC `GetOrCreateUser`, `UpdateProfile`, `DeleteUser`.
-- Hanya service ini yang mengakses schema `user_svc`.
-- Penghapusan akun mengoordinasikan penghapusan data di Transaction Service.
+## Scope
+- `cmd/user-service` with the RPCs `GetOrCreateUser`, `UpdateProfile`, `DeleteUser`.
+- Only this service accesses the `user_svc` schema.
+- Account deletion coordinates the deletion of data in the Transaction Service.
 
-## Kriteria penerimaan
-- [ ] `GetOrCreateUser` aman dipanggil bersamaan untuk ID Telegram yang sama.
-- [ ] `/hapusakun` tetap menghapus semua data pengguna setelah dipecah.
+## Acceptance criteria
+- [ ] `GetOrCreateUser` is safe to call concurrently for the same Telegram ID.
+- [ ] `/hapusakun` still deletes all of the user's data after the split.
 
-## Dependensi
+## Dependencies
 RUPI-201, RUPI-202.

@@ -1,21 +1,21 @@
-# RUPI-204 · Pecah Transaction Service
+# RUPI-204 · Split out the Transaction Service
 
-| Fase | Prioritas | Ukuran | Referensi |
+| Phase | Priority | Size | References |
 | --- | --- | --- | --- |
-| 2 · Microservices gRPC | P0 | M | `TransactionService`, SEC-02, NFR-08 |
+| 2 · gRPC microservices | P0 | M | `TransactionService`, SEC-02, NFR-08 |
 
-## Cakupan
-- `cmd/transaction-service` dengan RPC `CreateTransactions`, `UpdateTransaction`,
+## Scope
+- `cmd/transaction-service` with the RPCs `CreateTransactions`, `UpdateTransaction`,
   `DeleteTransaction`, `ListTransactions`, `FindRecent`.
-- Hanya service ini yang mengakses schema `transaction_svc`.
-- `user_id` selalu diambil dari metadata `x-user-id`, tidak pernah dari body request.
-- `CreateTransactions` idempoten berdasarkan `source_message_id` (unique index).
+- Only this service accesses the `transaction_svc` schema.
+- `user_id` is always taken from the `x-user-id` metadata, never from the request body.
+- `CreateTransactions` is idempotent based on `source_message_id` (unique index).
 
-## Kriteria penerimaan
-- [ ] Memanggil `CreateTransactions` dua kali dengan `source_message_id` yang sama
-      menghasilkan `ALREADY_EXISTS`, bukan transaksi ganda.
-- [ ] Pengguna A tidak bisa mengakses transaksi pengguna B lewat RPC apa pun.
-- [ ] Integration test dari RUPI-102 dipindah dan tetap lulus.
+## Acceptance criteria
+- [ ] Calling `CreateTransactions` twice with the same `source_message_id`
+      returns `ALREADY_EXISTS` instead of creating duplicate transactions.
+- [ ] User A cannot access user B's transactions through any RPC.
+- [ ] The integration tests from RUPI-102 are moved over and still pass.
 
-## Dependensi
+## Dependencies
 RUPI-201, RUPI-202, RUPI-102.

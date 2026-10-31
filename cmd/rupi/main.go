@@ -1,5 +1,5 @@
-// Command rupi menjalankan bot Rupi Fase 1: satu proses berisi Channel
-// Adapter, Conversation, Parser, Transaction, User, dan Report.
+// Command rupi runs the Phase 1 Rupi bot: a single process containing the Channel
+// Adapter, Conversation, Parser, Transaction, User, and Report modules.
 package main
 
 import (
@@ -11,7 +11,7 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	_ "time/tzdata" // zona waktu tetap tersedia di image minimal dan Windows
+	_ "time/tzdata" // time zones stay available on minimal images and Windows
 
 	"github.com/suryasuharna23/rupi/internal/config"
 	"github.com/suryasuharna23/rupi/internal/conversation"
@@ -23,12 +23,12 @@ import (
 	"github.com/suryasuharna23/rupi/internal/user"
 )
 
-// shutdownTimeout mengikuti batas graceful shutdown NFR-10.
+// shutdownTimeout follows the NFR-10 graceful shutdown limit.
 const shutdownTimeout = 30 * time.Second
 
 func main() {
 	if err := run(); err != nil {
-		slog.Error("rupi berhenti", "err", err)
+		slog.Error("rupi stopped", "err", err)
 		os.Exit(1)
 	}
 }
@@ -61,7 +61,7 @@ func run() error {
 		transaction.NewStore(db),
 		report.NewStore(db),
 		conversation.NewIdempotencyStore(db),
-		parser.New(nil), // LLM belum dipasang: pesan yang tak dipahami aturan dijawab dengan tanya balik
+		parser.New(nil), // no LLM yet: messages the rules don't understand get a clarifying question
 	)
 	tg := telegram.NewClient(cfg.TelegramAPIURL, cfg.TelegramToken)
 	adapter := telegram.NewAdapter(tg, svc)
@@ -82,7 +82,7 @@ func run() error {
 	} else {
 		go func() {
 			if err := adapter.Poll(ctx); err != nil {
-				slog.Error("polling berhenti", "err", err)
+				slog.Error("polling stopped", "err", err)
 				stop()
 			}
 		}()
@@ -91,7 +91,7 @@ func run() error {
 	srv := &http.Server{Addr: cfg.HTTPAddr, Handler: mux, ReadHeaderTimeout: 10 * time.Second}
 	errCh := make(chan error, 1)
 	go func() { errCh <- srv.ListenAndServe() }()
-	slog.Info("rupi berjalan", "mode", cfg.TelegramMode, "addr", cfg.HTTPAddr)
+	slog.Info("rupi running", "mode", cfg.TelegramMode, "addr", cfg.HTTPAddr)
 
 	select {
 	case err := <-errCh:

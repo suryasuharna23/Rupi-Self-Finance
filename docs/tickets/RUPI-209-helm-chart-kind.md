@@ -1,23 +1,23 @@
-# RUPI-209 · Helm chart dan deploy ke kind
+# RUPI-209 · Helm chart and deployment to kind
 
-| Fase | Prioritas | Ukuran | Referensi |
+| Phase | Priority | Size | References |
 | --- | --- | --- | --- |
-| 2 · Microservices gRPC | P0 | L | bagian Infrastruktur Kubernetes |
+| 2 · gRPC microservices | P0 | L | Kubernetes infrastructure section |
 
-## Cakupan
-- Cluster lokal kind dengan namespace `rupi-dev` dan `rupi-staging`.
-- Helm chart untuk semua service dengan replika dan request/limit sesuai tabel di dokumen.
-- PostgreSQL dan Redis sebagai StatefulSet + PVC (atau CloudNativePG).
-- Migrasi skema sebagai Job Helm pre-upgrade hook.
-- `readinessProbe` dan `livenessProbe` memakai `grpc.health.v1`.
-- Konfigurasi lewat ConfigMap; token bot, API key LLM, kredensial DB lewat Secret.
-- Load balancing gRPC lewat headless Service + client-side round robin.
-- Satu Dockerfile multi-target atau satu Dockerfile per service; image non-root.
+## Scope
+- A local kind cluster with the `rupi-dev` and `rupi-staging` namespaces.
+- A Helm chart for all services, with replicas and requests/limits as listed in the table in the requirements document.
+- PostgreSQL and Redis as StatefulSet + PVC (or CloudNativePG).
+- Schema migrations as a Helm pre-upgrade hook Job.
+- `readinessProbe` and `livenessProbe` use `grpc.health.v1`.
+- Configuration via ConfigMap; bot token, LLM API key, and DB credentials via Secret.
+- gRPC load balancing via a headless Service + client-side round robin.
+- One multi-target Dockerfile or one Dockerfile per service; non-root images.
 
-## Kriteria penerimaan
-- [ ] `helm install` di kind menjalankan semua service sampai Ready.
-- [ ] Tidak ada rahasia di values file atau image.
-- [ ] Beban gRPC tersebar ke kedua replika (terlihat di log).
+## Acceptance criteria
+- [ ] `helm install` on kind brings every service to Ready.
+- [ ] No secrets in values files or images.
+- [ ] gRPC load is spread across both replicas (visible in the logs).
 
-## Dependensi
+## Dependencies
 RUPI-203 – RUPI-208.

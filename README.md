@@ -1,37 +1,42 @@
 # Rupi
 
-Asisten pencatatan keuangan pribadi untuk mahasiswa lewat chat Telegram. Ketik
-"beli bakso 15rb" dan Rupi mencatat, mengategorikan, dan melaporkannya.
+A personal finance assistant for university students, used entirely through
+Telegram chat. Type "beli bakso 15rb" and Rupi records, categorises, and
+reports it.
 
-Kebutuhan lengkap ada di [`docs/Rupi - Dokumen Kebutuhan Sistem.pdf`](docs/).
+The full requirements are in [`docs/Rupi - Dokumen Kebutuhan Sistem.pdf`](docs/)
+(Indonesian). Work is tracked as tickets in [`docs/tickets/`](docs/tickets/).
 
-## Status: Fase 1, inti percakapan (monolit)
+## Status: Phase 1, conversation core (monolith)
 
-Sesuai roadmap, Fase 1 sengaja berupa satu service Go agar kualitas parser bisa
-diasah sebelum sistem dipecah. Paket di `internal/` sudah mengikuti batas
-service Fase 2, jadi tiap paket nanti menjadi satu service gRPC.
+Following the roadmap, Phase 1 is deliberately a single Go service so the
+parser can be refined before the system is split up. The packages in
+`internal/` already follow the Phase 2 service boundaries, so each package
+later becomes one gRPC service.
 
-| Paket                    | Calon service (Fase 2) | Isi                                                       |
-| ------------------------ | ---------------------- | --------------------------------------------------------- |
-| `internal/telegram`      | Channel Adapter        | Long polling / webhook dengan `secret_token`              |
-| `internal/conversation`  | Conversation Service   | Onboarding, klarifikasi, koreksi, idempotensi, rate limit |
-| `internal/parser`        | Parser Service         | Aturan (nominal, waktu, kategori) + antarmuka LLM         |
-| `internal/transaction`   | Transaction Service    | Simpan, koreksi + jejak audit, undo                       |
-| `internal/user`          | User Service           | Profil, zona waktu, hapus akun                            |
-| `internal/report`        | Report Service         | Total per periode/kategori, `/ringkas`                    |
-| `internal/storage`       | —                      | Koneksi PostgreSQL dan migrasi (satu schema per service)  |
+| Package                  | Future service (Phase 2) | Contents                                                     |
+| ------------------------ | ------------------------ | ------------------------------------------------------------ |
+| `internal/telegram`      | Channel Adapter          | Long polling / webhook with `secret_token`                   |
+| `internal/conversation`  | Conversation Service     | Onboarding, clarification, corrections, idempotency, rate limit |
+| `internal/parser`        | Parser Service           | Rules (amounts, time, categories) + LLM interface            |
+| `internal/transaction`   | Transaction Service      | Store, correct + audit trail, undo                           |
+| `internal/user`          | User Service             | Profile, time zone, account deletion                         |
+| `internal/report`        | Report Service           | Totals per period/category, `/ringkas`                       |
+| `internal/storage`       | —                        | PostgreSQL connection and migrations (one schema per service) |
 
-## Menjalankan secara lokal
+The bot talks to users in Indonesian; code, docs, and tickets are in English.
 
-Prasyarat: Go 1.27+, Docker, dan token bot dari [@BotFather](https://t.me/BotFather).
+## Running locally
+
+Prerequisites: Go 1.27+, Docker, and a bot token from [@BotFather](https://t.me/BotFather).
 
 ```sh
-cp .env.example .env        # isi TELEGRAM_BOT_TOKEN
-make db                     # PostgreSQL 16 lewat docker compose
-make run                    # migrasi otomatis lalu mulai long polling
+cp .env.example .env        # fill in TELEGRAM_BOT_TOKEN
+make db                     # PostgreSQL 16 via docker compose
+make run                    # runs migrations, then starts long polling
 ```
 
-Tanpa `make` di PowerShell:
+Without `make`, in PowerShell:
 
 ```powershell
 docker compose up -d postgres
@@ -41,35 +46,35 @@ Get-Content .env | Where-Object { $_ -match "^[A-Z_]+=" } | ForEach-Object {
 go run ./cmd/rupi
 ```
 
-## Pengujian
+## Testing
 
 ```sh
-make test   # unit test
-make e2e    # alur chat lengkap: Postgres sungguhan + Telegram tiruan
-make eval   # akurasi parser terhadap testdata/eval/dataset.jsonl
+make test   # unit tests
+make e2e    # full chat flow: real Postgres + fake Telegram
+make eval   # parser accuracy against testdata/eval/dataset.jsonl
 ```
 
-Gerbang Fase 1 adalah akurasi ekstraksi ≥ 95% pada dataset evaluasi 300 kalimat
-(NFR-03). Dataset baru berisi 20 contoh dari dokumen kebutuhan; tambahkan
-kalimat nyata ke `testdata/eval/dataset.jsonl`.
+The Phase 1 gate is ≥ 95% extraction accuracy on a 300-sentence evaluation
+dataset (NFR-03). The dataset currently has 20 examples taken from the
+requirements document; add real sentences to `testdata/eval/dataset.jsonl`.
 
-## Perintah bot
+## Bot commands
 
-| Perintah                            | Fungsi                                  |
-| ----------------------------------- | --------------------------------------- |
-| `/start`                            | Daftar dan onboarding                   |
-| `beli bakso 15rb`                   | Catat transaksi                         |
-| `yang bakso tadi 18rb`              | Koreksi nominal                         |
-| `/undo`, `batalin yang terakhir`    | Batalkan transaksi terakhir (≤ 24 jam)  |
-| `bulan ini habis berapa buat makan?`| Tanya total                             |
-| `/ringkas`                          | Ringkasan hari, minggu, dan bulan ini   |
-| `/hapusakun`                        | Hapus semua data                        |
+| Message                              | What it does                             |
+| ------------------------------------ | ---------------------------------------- |
+| `/start`                             | Sign up and onboarding                   |
+| `beli bakso 15rb`                    | Record a transaction                     |
+| `yang bakso tadi 18rb`               | Correct an amount                        |
+| `/undo`, `batalin yang terakhir`     | Undo the latest transaction (≤ 24 hours) |
+| `bulan ini habis berapa buat makan?` | Ask for a total                          |
+| `/ringkas`                           | Summary for today, this week, this month |
+| `/hapusakun`                         | Delete all data                          |
 
-## Belum dikerjakan
+## Not done yet
 
-- Implementasi LLM: penyedianya masih pertanyaan terbuka di dokumen. Antarmuka
-  `parser.LLM` dan validasi keluarannya (SEC-05) sudah ada; sementara ini
-  pesan yang tidak dipahami aturan dijawab dengan pertanyaan balik.
-- Saldo awal saat onboarding (opsional di FR-02) dan pengubahan zona waktu.
-- Purge akun yang sudah di-soft delete setelah 30 hari.
-- Integration test dengan Testcontainers.
+- LLM implementation: the provider is still an open question in the
+  requirements. The `parser.LLM` interface and output validation (SEC-05)
+  exist; for now, messages the rules don't understand get a clarifying question.
+- Opening balance during onboarding (optional in FR-02) and changing time zone.
+- Purging soft-deleted accounts after 30 days.
+- Integration tests with Testcontainers.

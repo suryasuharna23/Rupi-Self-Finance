@@ -9,7 +9,7 @@ run:
 test:
 	go test ./...
 
-# Butuh Postgres yang berjalan (make db). Telegram memakai server tiruan.
+# Needs a running Postgres (make db). Telegram is replaced by a fake server.
 e2e:
 	RUPI_TEST_DATABASE_URL=postgres://rupi:rupi@localhost:5432/rupi?sslmode=disable go test -tags e2e -count=1 -v ./internal/e2e/
 

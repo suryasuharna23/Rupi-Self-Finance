@@ -12,7 +12,7 @@ import (
 	"github.com/suryasuharna23/rupi/internal/conversation"
 )
 
-// Handler adalah sisi Conversation Service yang dipanggil adapter.
+// Handler is the Conversation Service side that the adapter calls.
 type Handler interface {
 	HandleMessage(ctx context.Context, msg conversation.Incoming) ([]conversation.Reply, error)
 }
@@ -26,7 +26,7 @@ func NewAdapter(client *Client, handler Handler) *Adapter {
 	return &Adapter{client: client, handler: handler}
 }
 
-// Poll menjalankan long polling sampai ctx dibatalkan.
+// Poll runs long polling until ctx is cancelled.
 func (a *Adapter) Poll(ctx context.Context) error {
 	if err := a.client.DeleteWebhook(ctx); err != nil {
 		return err
@@ -36,7 +36,7 @@ func (a *Adapter) Poll(ctx context.Context) error {
 		updates, err := a.client.GetUpdates(ctx, offset)
 		if err != nil {
 			if ctx.Err() == nil {
-				slog.Error("getUpdates gagal", "err", err)
+				slog.Error("getUpdates failed", "err", err)
 				time.Sleep(3 * time.Second)
 			}
 			continue
@@ -49,7 +49,7 @@ func (a *Adapter) Poll(ctx context.Context) error {
 	return nil
 }
 
-// WebhookHandler memverifikasi secret_token sebelum memproses update (SEC-01).
+// WebhookHandler verifies secret_token before processing an update (SEC-01).
 func (a *Adapter) WebhookHandler(secretToken string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		got := r.Header.Get("X-Telegram-Bot-Api-Secret-Token")
@@ -74,17 +74,17 @@ func (a *Adapter) process(ctx context.Context, u Update) {
 	}
 	if u.CallbackQuery != nil {
 		if err := a.client.AnswerCallback(ctx, u.CallbackQuery.ID); err != nil {
-			slog.Warn("answerCallbackQuery gagal", "err", err)
+			slog.Warn("answerCallbackQuery failed", "err", err)
 		}
 	}
 	replies, err := a.handler.HandleMessage(ctx, msg)
 	if err != nil {
-		slog.Error("handle message gagal", "err", err, "message_id", msg.MessageID)
+		slog.Error("handle message failed", "err", err, "message_id", msg.MessageID)
 		replies = []conversation.Reply{{Text: "Maaf, ada gangguan. Coba lagi sebentar lagi ya."}}
 	}
 	for _, r := range replies {
 		if err := a.client.SendMessage(ctx, msg.ChatID, r.Text, toButtons(r.Buttons)); err != nil {
-			slog.Error("sendMessage gagal", "err", err)
+			slog.Error("sendMessage failed", "err", err)
 		}
 	}
 }

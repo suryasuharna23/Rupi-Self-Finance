@@ -6,12 +6,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// IdempotencyStore mencatat pesan yang sudah diproses di processed_messages.
+// IdempotencyStore records processed messages in processed_messages.
 type IdempotencyStore struct{ db *pgxpool.Pool }
 
 func NewIdempotencyStore(db *pgxpool.Pool) *IdempotencyStore { return &IdempotencyStore{db: db} }
 
-// MarkProcessed mengembalikan true bila pesan belum pernah diproses.
+// MarkProcessed returns true if the message has not been processed before.
 func (s *IdempotencyStore) MarkProcessed(ctx context.Context, channel, messageID string) (bool, error) {
 	tag, err := s.db.Exec(ctx, `
 		INSERT INTO conversation_svc.processed_messages (channel, external_message_id)
@@ -19,7 +19,7 @@ func (s *IdempotencyStore) MarkProcessed(ctx context.Context, channel, messageID
 	return tag.RowsAffected() == 1, err
 }
 
-// Unmark membuka kembali pesan yang gagal diproses agar retry bisa berhasil.
+// Unmark reopens a message that failed so a retry can succeed.
 func (s *IdempotencyStore) Unmark(ctx context.Context, channel, messageID string) error {
 	_, err := s.db.Exec(ctx, `
 		DELETE FROM conversation_svc.processed_messages

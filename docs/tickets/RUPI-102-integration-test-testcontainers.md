@@ -1,27 +1,27 @@
-# RUPI-102 · Integration test store dengan Testcontainers
+# RUPI-102 · Store integration tests with Testcontainers
 
-| Fase | Prioritas | Ukuran | Referensi |
+| Phase | Priority | Size | References |
 | --- | --- | --- | --- |
-| 1 · Inti percakapan | P0 | M | NFR-07, NFR-08, SEC-02, bagian Pengujian |
+| 1 · Conversation core | P0 | M | NFR-07, NFR-08, SEC-02, Testing section |
 
-## Latar
-Semua query SQL belum punya tes otomatis. Dokumen menetapkan integration test
-memakai Postgres sungguhan lewat Testcontainers.
+## Background
+None of the SQL queries have automated tests yet. The requirements document specifies
+that integration tests use a real Postgres instance via Testcontainers.
 
-## Cakupan
-- Helper test yang menyalakan `postgres:16-alpine` dan menjalankan `storage.Migrate`.
-- Tes untuk `transaction.Store`, `user.Store`, `report.Store`, `conversation.IdempotencyStore`.
-- Pisahkan dengan build tag `integration` agar `go test ./...` tetap cepat.
-- Job CI terpisah untuk integration test.
+## Scope
+- A test helper that starts `postgres:16-alpine` and runs `storage.Migrate`.
+- Tests for `transaction.Store`, `user.Store`, `report.Store`, `conversation.IdempotencyStore`.
+- Separate them with the `integration` build tag so `go test ./...` stays fast.
+- A separate CI job for integration tests.
 
-## Kriteria penerimaan
-- [ ] `Create` menyimpan beberapa transaksi secara atomik dan memetakan nama kategori ke ID.
-- [ ] `UpdateAmount` menulis jejak di `transaction_edits`.
-- [ ] `DeleteLast` tidak menghapus transaksi yang dibuat lebih dari 24 jam lalu.
-- [ ] Pengguna A tidak bisa membaca, mengubah, atau menghapus transaksi pengguna B (SEC-02).
-- [ ] `MarkProcessed` mengembalikan `false` untuk pesan yang sama kedua kali (NFR-07).
-- [ ] `GetOrCreate` membuat pengguna baru setelah akun lama di-soft delete.
-- [ ] `Summary` benar untuk minggu yang melewati awal bulan.
+## Acceptance criteria
+- [ ] `Create` saves multiple transactions atomically and maps category names to IDs.
+- [ ] `UpdateAmount` writes an audit trail to `transaction_edits`.
+- [ ] `DeleteLast` does not delete transactions created more than 24 hours ago.
+- [ ] User A cannot read, modify, or delete user B's transactions (SEC-02).
+- [ ] `MarkProcessed` returns `false` the second time it sees the same message (NFR-07).
+- [ ] `GetOrCreate` creates a new user after the old account has been soft-deleted.
+- [ ] `Summary` is correct for a week that spans the start of a month.
 
-## Dependensi
+## Dependencies
 RUPI-101.

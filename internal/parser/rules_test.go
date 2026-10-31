@@ -7,7 +7,7 @@ import (
 
 var jakarta = time.FixedZone("WIB", 7*3600)
 
-// Jumat, 30 Oktober 2026 pukul 20.00 WIB.
+// Friday, 30 October 2026 at 20:00 WIB.
 var testNow = time.Date(2026, 10, 30, 20, 0, 0, 0, jakarta)
 
 func parse(text string, recent ...RecentTransaction) Result {
@@ -46,7 +46,7 @@ func TestParseRulesTransactions(t *testing.T) {
 					t.Errorf("tx[%d] = %+v, want %+v", i, tx, w)
 				}
 				if tx.Confidence < ConfidenceThreshold {
-					t.Errorf("tx[%d] confidence %.2f di bawah ambang", i, tx.Confidence)
+					t.Errorf("tx[%d] confidence %.2f below threshold", i, tx.Confidence)
 				}
 			}
 		})
@@ -61,7 +61,7 @@ func TestParseRulesOtherKinds(t *testing.T) {
 		t.Errorf("halo rupi: got %+v", res)
 	}
 	if _, ok := ParseRules(Request{Text: "apa kabar dunia", ReceivedAt: testNow}); ok {
-		t.Errorf("kalimat tak dikenal harus diteruskan ke LLM")
+		t.Errorf("unknown sentences must be passed on to the LLM")
 	}
 }
 
@@ -95,7 +95,7 @@ func TestResolveTime(t *testing.T) {
 		"jumat lalu":    time.Date(2026, 10, 23, 12, 0, 0, 0, jakarta),
 		"minggu lalu":   time.Date(2026, 10, 23, 12, 0, 0, 0, jakarta),
 		"tgl 3":         time.Date(2026, 10, 3, 12, 0, 0, 0, jakarta),
-		"tgl 31":        time.Date(2026, 9, 30, 12, 0, 0, 0, jakarta), // September hanya 30 hari
+		"tgl 31":        time.Date(2026, 9, 30, 12, 0, 0, 0, jakarta), // September has only 30 days
 		"tadi pagi":     time.Date(2026, 10, 30, 8, 0, 0, 0, jakarta),
 		"tanpa waktu":   testNow,
 	}

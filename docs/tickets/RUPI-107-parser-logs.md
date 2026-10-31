@@ -1,20 +1,20 @@
-# RUPI-107 · Tabel parser_logs dengan teks disamarkan
+# RUPI-107 · parser_logs table with redacted text
 
-| Fase | Prioritas | Ukuran | Referensi |
+| Phase | Priority | Size | References |
 | --- | --- | --- | --- |
-| 1 · Inti percakapan | P0 | M | SEC-08, model data `parser_logs` |
+| 1 · Conversation core | P0 | M | SEC-08, `parser_logs` data model |
 
-## Cakupan
-- Migrasi schema `parser_svc` dengan tabel `parser_logs` (user_id hash, text_redacted,
+## Scope
+- Migration for the `parser_svc` schema with a `parser_logs` table (user_id hash, text_redacted,
   result JSON, source, latency_ms, tokens, created_at).
-- Fungsi penyamaran: angka panjang (rekening, HP), email, dan nama orang.
-- Hapus baris berumur > 30 hari secara terjadwal.
-- Pastikan log aplikasi level INFO tidak memuat isi pesan mentah.
+- Redaction function: long numbers (bank accounts, phone numbers), emails, and people's names.
+- Delete rows older than 30 days on a schedule.
+- Ensure INFO-level application logs do not contain raw message content.
 
-## Kriteria penerimaan
-- [ ] Setiap pemanggilan parser menulis satu baris log.
-- [ ] Unit test penyamaran untuk nomor HP, nomor rekening, dan email.
-- [ ] Tidak ada log level INFO yang memuat teks pesan.
+## Acceptance criteria
+- [ ] Every parser call writes one log row.
+- [ ] Unit tests for redacting phone numbers, bank account numbers, and emails.
+- [ ] No INFO-level log contains message text.
 
-## Dependensi
-Tidak ada.
+## Dependencies
+None.

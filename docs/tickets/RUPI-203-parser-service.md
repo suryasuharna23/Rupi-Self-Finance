@@ -1,18 +1,18 @@
-# RUPI-203 · Pecah Parser Service
+# RUPI-203 · Split out the Parser Service
 
-| Fase | Prioritas | Ukuran | Referensi |
+| Phase | Priority | Size | References |
 | --- | --- | --- | --- |
-| 2 · Microservices gRPC | P0 | M | `ParserService.Parse`, NFR-01, NFR-02 |
+| 2 · gRPC microservices | P0 | M | `ParserService.Parse`, NFR-01, NFR-02 |
 
-## Cakupan
-- `cmd/parser-service` yang membungkus `internal/parser` di balik `ParserService.Parse`.
-- Konversi `parser.Result` ↔ `ParseResult` protobuf, termasuk `source` untuk metrik.
-- Deadline 5 detik dari pemanggil; LLM API key hanya dimiliki service ini.
+## Scope
+- `cmd/parser-service`, which wraps `internal/parser` behind `ParserService.Parse`.
+- Conversion between `parser.Result` ↔ the protobuf `ParseResult`, including `source` for metrics.
+- A 5-second deadline set by the caller; only this service holds the LLM API key.
 
-## Kriteria penerimaan
-- [ ] Dataset evaluasi memberi hasil yang sama lewat gRPC maupun pemanggilan langsung.
-- [ ] Panggilan melewati deadline mengembalikan `DEADLINE_EXCEEDED`.
-- [ ] Service stateless dan bisa berjalan dengan beberapa replika.
+## Acceptance criteria
+- [ ] The evaluation dataset gives the same results via gRPC as via direct calls.
+- [ ] Calls that exceed the deadline return `DEADLINE_EXCEEDED`.
+- [ ] The service is stateless and can run with multiple replicas.
 
-## Dependensi
+## Dependencies
 RUPI-201, RUPI-202.

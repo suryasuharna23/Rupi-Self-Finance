@@ -1,21 +1,21 @@
-# RUPI-211 · End-to-end test di kind (gerbang MVP)
+# RUPI-211 · End-to-end tests on kind (MVP gate)
 
-| Fase | Prioritas | Ukuran | Referensi |
+| Phase | Priority | Size | References |
 | --- | --- | --- | --- |
-| 2 · Microservices gRPC | P0 | M | Pengujian: End-to-end, gerbang MVP |
+| 2 · gRPC microservices | P0 | M | Testing section: End-to-end, MVP gate |
 
-## Cakupan
-- Skrip Telegram tiruan yang mengirim webhook ke Channel Adapter dan menangkap balasan.
-- LLM di-mock dengan respons tetap.
-- Jalankan semua kriteria penerimaan P0 dari dokumen.
+## Scope
+- A fake Telegram script that sends webhooks to the Channel Adapter and captures the replies.
+- The LLM is mocked with fixed responses.
+- Run all P0 acceptance criteria from the requirements document.
 
-## Kriteria penerimaan
-- [ ] "bakso 15rb sama es teh goceng" menghasilkan tepat 2 transaksi Rp15.000 dan Rp5.000.
-- [ ] Webhook yang sama dikirim dua kali hanya menghasilkan satu set transaksi.
-- [ ] "yang bakso tadi 18rb" mengubah transaksi bakso terakhir dan mencatat jejak di `transaction_edits`.
-- [ ] Saat LLM tidak merespons dalam 5 detik, pengguna menerima pertanyaan klarifikasi, bukan error.
-- [ ] Pengguna A tidak dapat melihat atau mengubah transaksi pengguna B melalui RPC apa pun.
-- [ ] Test berjalan di CI.
+## Acceptance criteria
+- [ ] "bakso 15rb sama es teh goceng" produces exactly 2 transactions of Rp15.000 and Rp5.000.
+- [ ] The same webhook delivered twice produces only one set of transactions.
+- [ ] "yang bakso tadi 18rb" changes the most recent bakso transaction and records an audit trail in `transaction_edits`.
+- [ ] When the LLM does not respond within 5 seconds, the user receives a clarification question, not an error.
+- [ ] User A cannot view or modify user B's transactions through any RPC.
+- [ ] The tests run in CI.
 
-## Dependensi
+## Dependencies
 RUPI-209, RUPI-210.

@@ -20,8 +20,8 @@ var (
 	expenseVerbs = []string{"beli", "bayar", "jajan", "isi", "makan", "minum"}
 )
 
-// ParseRules mencoba memahami pesan memakai aturan saja.
-// ok=false berarti pesan perlu diteruskan ke LLM.
+// ParseRules tries to understand a message using rules only.
+// ok=false means the message must be passed on to the LLM.
 func ParseRules(req Request) (Result, bool) {
 	text := strings.TrimSpace(req.Text)
 	now := req.ReceivedAt.In(location(req))
@@ -47,7 +47,7 @@ func ParseRules(req Request) (Result, bool) {
 		seg = strings.TrimSpace(pending + " " + seg)
 		segAmounts := FindAmounts(seg)
 		if len(segAmounts) == 0 {
-			pending = seg // gabungkan dengan segmen berikutnya: "makan sama temen 20rb"
+			pending = seg // merge with the next segment: "makan sama temen 20rb"
 			continue
 		}
 		pending = ""
@@ -90,7 +90,7 @@ func buildTransaction(seg string, amounts []Amount, occurredAt time.Time) Parsed
 
 func parseCorrection(text string, a Amount, recent []RecentTransaction) Result {
 	words := strings.Fields(strings.ToLower(correctionFillerRe.ReplaceAllString(text[:a.Start]+" "+text[a.End:], " ")))
-	for _, tx := range recent { // recent terurut dari yang terbaru
+	for _, tx := range recent { // recent is ordered newest first
 		desc := strings.ToLower(tx.Description)
 		for _, w := range words {
 			if len(w) >= 3 && strings.Contains(desc, w) {
@@ -132,7 +132,7 @@ func monthRange(now time.Time) DateRange {
 	return DateRange{Start: start, End: start.AddDate(0, 1, 0)}
 }
 
-// weekRange memakai Senin sebagai awal minggu.
+// weekRange treats Monday as the start of the week.
 func weekRange(now time.Time) DateRange {
 	offset := (int(now.Weekday()) + 6) % 7
 	start := time.Date(now.Year(), now.Month(), now.Day()-offset, 0, 0, 0, 0, now.Location())

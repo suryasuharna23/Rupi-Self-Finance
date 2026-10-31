@@ -1,4 +1,4 @@
-// Package storage menyiapkan koneksi PostgreSQL dan migrasi skema.
+// Package storage sets up the PostgreSQL connection and schema migrations.
 package storage
 
 import (
@@ -20,7 +20,7 @@ var migrations embed.FS
 func Connect(ctx context.Context, url string) (*pgxpool.Pool, error) {
 	pool, err := pgxpool.New(ctx, url)
 	if err != nil {
-		return nil, fmt.Errorf("buka pool postgres: %w", err)
+		return nil, fmt.Errorf("open postgres pool: %w", err)
 	}
 	if err := pool.Ping(ctx); err != nil {
 		pool.Close()
@@ -29,21 +29,21 @@ func Connect(ctx context.Context, url string) (*pgxpool.Pool, error) {
 	return pool, nil
 }
 
-// Migrate menjalankan semua migrasi yang belum diterapkan.
+// Migrate applies every migration that has not run yet.
 func Migrate(url string) error {
 	src, err := iofs.New(migrations, "migrations")
 	if err != nil {
 		return err
 	}
-	// Driver golang-migrate untuk pgx v5 memakai skema URL "pgx5".
+	// golang-migrate's pgx v5 driver uses the "pgx5" URL scheme.
 	dbURL := "pgx5://" + strings.TrimPrefix(strings.TrimPrefix(url, "postgres://"), "postgresql://")
 	m, err := migrate.NewWithSourceInstance("iofs", src, dbURL)
 	if err != nil {
-		return fmt.Errorf("siapkan migrasi: %w", err)
+		return fmt.Errorf("prepare migrations: %w", err)
 	}
 	defer m.Close()
 	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return fmt.Errorf("jalankan migrasi: %w", err)
+		return fmt.Errorf("run migrations: %w", err)
 	}
 	return nil
 }

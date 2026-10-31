@@ -1,6 +1,6 @@
-// Package parser mengubah pesan bahasa natural menjadi hasil terstruktur.
-// Lapis pertama memakai aturan (regex + kamus); bila gagal, lapis kedua
-// memanggil LLM yang keluarannya selalu divalidasi (lihat llm.go).
+// Package parser turns natural-language messages into structured results.
+// The first layer uses rules (regex + dictionaries); if they fail, the second
+// layer calls an LLM whose output is always validated (see llm.go).
 package parser
 
 import "time"
@@ -51,19 +51,19 @@ const (
 	KindSmallTalk
 )
 
-// ConfidenceThreshold: di bawah nilai ini bot bertanya balik (FR-12).
+// ConfidenceThreshold: below this value the bot asks back (FR-12).
 const ConfidenceThreshold = 0.7
 
 type ParsedTransaction struct {
 	Type        TransactionType
-	Amount      int64 // rupiah, bilangan bulat
+	Amount      int64 // rupiah, whole number
 	Description string
 	Category    string
 	OccurredAt  time.Time
 	Confidence  float64
 }
 
-// RecentTransaction adalah konteks untuk koreksi seperti "yang bakso tadi".
+// RecentTransaction is context for corrections like "yang bakso tadi".
 type RecentTransaction struct {
 	ID          string
 	Description string
@@ -82,8 +82,8 @@ const (
 )
 
 type DateRange struct {
-	Start time.Time // inklusif
-	End   time.Time // eksklusif
+	Start time.Time // inclusive
+	End   time.Time // exclusive
 }
 
 type ReportQuery struct {

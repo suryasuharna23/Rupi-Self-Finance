@@ -1,4 +1,4 @@
-// Package user memiliki data profil pengguna (calon User Service di Fase 2).
+// Package user owns user profile data (the future User Service in Phase 2).
 package user
 
 import (
@@ -20,7 +20,7 @@ type Store struct{ db *pgxpool.Pool }
 
 func NewStore(db *pgxpool.Pool) *Store { return &Store{db: db} }
 
-// GetOrCreate mendaftarkan pengguna otomatis berdasarkan ID Telegram (FR-01).
+// GetOrCreate registers users automatically by Telegram ID (FR-01).
 func (s *Store) GetOrCreate(ctx context.Context, telegramID int64) (User, bool, error) {
 	var u User
 	var created bool
@@ -49,7 +49,7 @@ func (s *Store) CompleteOnboarding(ctx context.Context, userID, displayName stri
 	return err
 }
 
-// Delete melakukan soft delete; data dipurge permanen setelah 30 hari (SEC-10).
+// Delete soft-deletes; data is purged permanently after 30 days (SEC-10).
 func (s *Store) Delete(ctx context.Context, userID string) error {
 	_, err := s.db.Exec(ctx,
 		`UPDATE user_svc.users SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL`, userID)
