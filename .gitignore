@@ -1,0 +1,11 @@
+# Rahasia
+.env
+
+# Build
+/bin/
+*.exe
+coverage.out
+
+# Editor
+.idea/
+.vscode/
