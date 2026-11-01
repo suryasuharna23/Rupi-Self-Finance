@@ -1,4 +1,4 @@
-.PHONY: db run test e2e cover eval lint build
+.PHONY: db run test integration e2e cover eval lint build
 
 db:
 	docker compose up -d postgres
@@ -8,6 +8,10 @@ run:
 
 test:
 	go test ./...
+
+# Starts a postgres:16-alpine container per package via Testcontainers (needs Docker).
+integration:
+	go test -tags integration -count=1 ./...
 
 # Needs a running Postgres (make db). Telegram is replaced by a fake server.
 e2e:
