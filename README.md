@@ -49,10 +49,15 @@ go run ./cmd/rupi
 ## Testing
 
 ```sh
-make test   # unit tests
-make e2e    # full chat flow: real Postgres + fake Telegram
-make eval   # parser accuracy against testdata/eval/dataset.jsonl
+make test         # unit tests
+make integration  # store tests against a throwaway Postgres container (needs Docker)
+make e2e          # full chat flow: real Postgres + fake Telegram
+make eval         # parser accuracy against testdata/eval/dataset.jsonl
 ```
+
+On Windows with Docker Desktop, Testcontainers sometimes fails to detect Docker
+("rootless Docker is not supported on Windows"). Pointing it at the engine fixes it:
+`export DOCKER_HOST=npipe:////./pipe/dockerDesktopLinuxEngine`.
 
 The Phase 1 gate is ≥ 95% extraction accuracy on a 300-sentence evaluation
 dataset (NFR-03). The dataset currently has 20 examples taken from the
@@ -77,4 +82,3 @@ requirements document; add real sentences to `testdata/eval/dataset.jsonl`.
   exist; for now, messages the rules don't understand get a clarifying question.
 - Opening balance during onboarding (optional in FR-02) and changing time zone.
 - Purging soft-deleted accounts after 30 days.
-- Integration tests with Testcontainers.

@@ -15,13 +15,13 @@ that integration tests use a real Postgres instance via Testcontainers.
 - A separate CI job for integration tests.
 
 ## Acceptance criteria
-- [ ] `Create` saves multiple transactions atomically and maps category names to IDs.
-- [ ] `UpdateAmount` writes an audit trail to `transaction_edits`.
-- [ ] `DeleteLast` does not delete transactions created more than 24 hours ago.
-- [ ] User A cannot read, modify, or delete user B's transactions (SEC-02).
-- [ ] `MarkProcessed` returns `false` the second time it sees the same message (NFR-07).
-- [ ] `GetOrCreate` creates a new user after the old account has been soft-deleted.
-- [ ] `Summary` is correct for a week that spans the start of a month.
+- [x] `Create` saves multiple transactions atomically and maps category names to IDs.
+- [x] `UpdateAmount` writes an audit trail to `transaction_edits`.
+- [x] `DeleteLast` does not delete transactions created more than 24 hours ago.
+- [x] User A cannot read, modify, or delete user B's transactions (SEC-02).
+- [x] `MarkProcessed` returns `false` the second time it sees the same message (NFR-07).
+- [x] `GetOrCreate` creates a new user after the old account has been soft-deleted.
+- [x] `Summary` is correct for a week that spans the start of a month.
 
 ## Dependencies
 RUPI-101.
