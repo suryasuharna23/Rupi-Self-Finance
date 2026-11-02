@@ -95,7 +95,7 @@ func setup(t *testing.T) *harness {
 	t.Cleanup(tgServer.Close)
 
 	svc := conversation.NewService(user.NewStore(db), transaction.NewStore(db), report.NewStore(db),
-		conversation.NewIdempotencyStore(db), parser.New(nil))
+		conversation.NewIdempotencyStore(db), parser.New(nil).WithLogs(parser.NewLogStore(db)))
 	adapter := telegram.NewAdapter(telegram.NewClient(tgServer.URL, "test-token"), svc)
 	webhook := httptest.NewServer(adapter.WebhookHandler(webhookSecret))
 	t.Cleanup(webhook.Close)

@@ -56,12 +56,23 @@ func run() error {
 	}
 	defer db.Close()
 
+	parserLogs := parser.NewLogStore(db)
+	go runDaily(ctx, func(ctx context.Context) {
+		n, err := parserLogs.DeleteOlderThan(ctx, time.Now().Add(-parser.LogRetention))
+		if err != nil {
+			slog.Error("purge parser logs failed", "err", err)
+			return
+		}
+		slog.Info("purged old parser logs", "rows", n)
+	})
+
 	svc := conversation.NewService(
 		user.NewStore(db),
 		transaction.NewStore(db),
 		report.NewStore(db),
 		conversation.NewIdempotencyStore(db),
-		parser.New(nil), // no LLM yet: messages the rules don't understand get a clarifying question
+		// No LLM yet: messages the rules don't understand get a clarifying question.
+		parser.New(nil).WithLogs(parserLogs),
 	)
 	tg := telegram.NewClient(cfg.TelegramAPIURL, cfg.TelegramToken)
 	adapter := telegram.NewAdapter(tg, svc)
@@ -103,4 +114,18 @@ func run() error {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 	return srv.Shutdown(shutdownCtx)
+}
+
+// runDaily runs job now and then every 24 hours until ctx is cancelled.
+func runDaily(ctx context.Context, job func(context.Context)) {
+	ticker := time.NewTicker(24 * time.Hour)
+	defer ticker.Stop()
+	for {
+		job(ctx)
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+	}
 }
