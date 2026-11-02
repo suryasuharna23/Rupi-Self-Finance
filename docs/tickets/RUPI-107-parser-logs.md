@@ -12,9 +12,9 @@
 - Ensure INFO-level application logs do not contain raw message content.
 
 ## Acceptance criteria
-- [ ] Every parser call writes one log row.
-- [ ] Unit tests for redacting phone numbers, bank account numbers, and emails.
-- [ ] No INFO-level log contains message text.
+- [x] Every parser call writes one log row.
+- [x] Unit tests for redacting phone numbers, bank account numbers, and emails.
+- [x] No INFO-level log contains message text.
 
 ## Dependencies
 None.
