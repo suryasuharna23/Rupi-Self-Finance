@@ -14,12 +14,12 @@ coverage is currently 19.7%.
 - Table-driven tests for every branch of `HandleMessage` and `handleCallback`.
 
 ## Acceptance criteria
-- [ ] A duplicate message produces neither a reply nor a second transaction.
-- [ ] A store error un-marks the message so a retry can succeed.
-- [ ] Transactions with confidence < 0.7 are not saved and the bot asks a follow-up question (FR-12).
-- [ ] An amount reply after "Berapa nominalnya?" is merged with the previous message.
-- [ ] The 31st message within one minute is rejected (SEC-07).
-- [ ] Coverage of the `conversation` package is ≥ 70%.
+- [x] A duplicate message produces neither a reply nor a second transaction.
+- [x] A store error un-marks the message so a retry can succeed.
+- [x] Transactions with confidence < 0.7 are not saved and the bot asks a follow-up question (FR-12).
+- [x] An amount reply after "Berapa nominalnya?" is merged with the previous message.
+- [x] The 31st message within one minute is rejected (SEC-07).
+- [x] Coverage of the `conversation` package is ≥ 70%.
 
 ## Dependencies
 None.
